@@ -1,0 +1,50 @@
+00000950 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.00
+Created On: 2/5/2020 5:39:56 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : 3.2C
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000950                             7      ORG    $950
+00000950                             8  START:                  ; first instruction of program
+00000950                             9  
+00000950  2A7C 00002000             10      MOVE.L  #$2000,A5   ; Move address $2000 to A5
+00000956  2C7C 0000201A             11      MOVE.L  #$201A,A6   ; Move address $201A to A6
+0000095C  1E3C 00E3                 12      MOVE.B  #227,D7     ; Syscall for printing a string to terminal
+00000960  4E4E                      13      TRAP    #14         ; TRAP function
+00000962  301F                      14      MOVE.W  (SP)+,D0    ; Move SSW to D0
+00000964  3E3C 00E8                 15      MOVE.W  #232,D7     ; Syscall to convert 4 hex digits (word) to ASCII
+00000968  4E4E                      16      TRAP    #14         ; TRAP function
+0000096A  1CFC 0020                 17      MOVE.B  #$20,(A6)+  ; Hex for space character
+0000096E  201F                      18      MOVE.L  (SP)+,D0    ; Move BA from SSP to D0
+00000970  3E3C 00E6                 19      MOVE.W  #230,D7     ; Syscall to convert 8 hex digits (long) to ASCII
+00000974  4E4E                      20      TRAP    #14         ; TRAP function
+00000976  1CFC 0020                 21      MOVE.B  #$20,(A6)+  ; Adding another space
+0000097A  301F                      22      MOVE.W  (SP)+,D0    ; Move IR from SSP to D0
+0000097C  3E3C 00E8                 23      MOVE.W  #232,D7     ; Syscall to convert 4 hex digits (word) to ASCII
+00000980  4E4E                      24      TRAP    #14         ; TRAP function
+00000982  3E3C 00E3                 25      MOVE.W  #227,D7     ; Syscall to print registers
+00000986  4E4E                      26      TRAP    #14         ; Trap function
+00000988  3E3C 00E4                 27      MOVE.W  #228,D7     ; go to TUTOR
+0000098C  4E4E                      28      TRAP    #14         ; Trap function
+0000098E                            29  
+0000098E                            30  
+0000098E                            31  * Put program code here
+0000098E                            32  
+0000098E  FFFF FFFF                 33      SIMHALT             ; halt simulator
+00000992                            34  
+00000992                            35  * Put variables and constants here
+00000992                            36  
+00000992                            37      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               950

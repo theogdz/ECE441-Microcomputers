@@ -1,0 +1,54 @@
+00000900 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 3/11/2020 6:55:42 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Interrupt Service Routine
+00000000                             3  * Written by : Theo Gudiroz
+00000000                             4  * Date       : 03/11/2020
+00000000                             5  * Description: Read data from DIP switch, write data to two 7-segment displays
+00000000                             6  *-----------------------------------------------------------
+00000900                             7      ORG    $900
+00000900                             8      
+00000900                             9  START:                 ; first instruction of program
+00000900  227C 0006E000             10      MOVEA.L #$6E000,A1      ;initialize the address
+00000906  1011                      11      MOVE.B (A1),D0          ;Read the value
+00000908  7201                      12      MOVE.L  #$1,D1          ;Initialize min
+0000090A  243C 00000099             13      MOVE.L  #$99,D2         ;Initialize max
+00000910  363C 0000                 14      MOVE.W  #0,D3           ;Initialize delay
+00000914  383C FFFF                 15      MOVE.W  #$FFFF,D4       ;Initialize delay max
+00000918                            16      
+00000918                            17  CHECK:
+00000918  B002                      18      CMP.B   D2,D0           ;Is counter max?
+0000091A  6700 001A                 19      BEQ     DONE            ;If yes, branch to done
+0000091E  13C0 0006E000             20      MOVE.B  D0,$6E000       ;Write to LED
+00000924                            21      
+00000924                            22  WAIT:
+00000924  5243                      23      ADDI.W  #1,D3           ;Increment counter
+00000926  B843                      24      CMP.W   D3,D4           ;Is the delay done?
+00000928  6700 0004                 25      BEQ     COUNT           ;If yes, branch to count
+0000092C  60F6                      26      BRA     WAIT            ;Else loop
+0000092E                            27      
+0000092E                            28  COUNT:
+0000092E  C101                      29      ABCD    D1,D0           ;Increment counter by 1
+00000930  363C 0000                 30      MOVE.W  #0,D3           ;Reinitialize delay
+00000934  60E2                      31      BRA     CHECK           ;Branch to check
+00000936                            32      
+00000936                            33  DONE:
+00000936  13C0 0006E000             34      MOVE.B  D0,$6E000       ;Write last value to LED
+0000093C  1C3C 00E4                 35      MOVE.B  #228,D6         ;Exit to TUTOR
+00000940                            36      
+00000940                            37      END     START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+CHECK               918
+COUNT               92E
+DONE                936
+START               900
+WAIT                924

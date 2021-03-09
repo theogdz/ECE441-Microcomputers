@@ -1,0 +1,35 @@
+00000950 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.00
+Created On: 2/5/2020 5:27:58 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : 3.2A
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000950                             7      ORG    $950
+00000950                             8  START:                  ; first instruction of program
+00000950  2A7C 00002000              9      MOVE.L #$2000,A5
+00000956  2C7C 0000201A             10      MOVE.L #$201A,A6
+0000095C  1E3C 00E3                 11      MOVE.B #227,D7
+00000960  4E4E                      12      TRAP #14
+00000962  1E3C 00E4                 13      MOVE.B #228,D7
+00000966  4E4E                      14      TRAP #14
+00000968                            15  
+00000968                            16  * Put program code here
+00000968                            17  
+00000968  FFFF FFFF                 18      SIMHALT             ; halt simulator
+0000096C                            19  
+0000096C                            20  * Put variables and constants here
+0000096C                            21  
+0000096C                            22      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               950

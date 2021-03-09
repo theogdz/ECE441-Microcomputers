@@ -1,0 +1,189 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.15.00
+Created On: 2/26/2020 1:53:23 AM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Memory Test
+00000000                             3  * Written by : Theo Guidroz
+00000000                             4  * Date       : 02/26/2020
+00000000                             5  * Description: 
+00000000                             6  *-----------------------------------------------------------
+00000800                             7      ORG    $800
+00000800                             8  
+00000800= 4D 45 4D 4F 52 59 ...      9  MSGPASS     DC.B    'MEMORY TEST PASSES!'  
+00000813                            10  ENDPASS     DS.B    1
+00000814                            11  
+00000814= 4C 6F 63 61 74 69 ...     12  MSGFAIL     DC.B    'Location of memory failure: '          
+00000830                            13  ENDFAIL     DS.B    1    
+00000831                            14  
+00000831= 20 56 61 6C 75 65 ...     15  READ        DC.B    ' Value that was read: '
+00000847                            16  READEND     DS.B    1
+00000848                            17  
+00000848= 20 56 61 6C 75 65 ...     18  WRITE       DC.B    ' Value that was written: '
+00000861                            19  WRITEEND    DS.B    1     
+00000862                            20  
+00001000                            21      ORG    $1000
+00001000                            22  
+00001000                            23  START:                  ; first instruction of program
+00001000                            24  
+00001000  47F9 0008B800             25      LEA $8B800, A3      ; First address of 2 KB RAM
+00001006  220B                      26      MOVE.L A3,D1        ; Move first address to D0
+00001008  49F9 0008BFFF             27      LEA $8BFFF, A4      ; Last address of 2 KB RAM
+0000100E                            28  
+0000100E                            29  MEM_START:
+0000100E  16FC 00AA                 30      MOVE.B #$AA,(A3)+   ; Write $AA to the contents of (A3)
+00001012  B9CB                      31      CMPA.L A3,A4        ; See if the two addresses are equal
+00001014  6700 0004                 32      BEQ MEM_NEXT        ; If they're equal, go to MEM_NEXT to restore original address
+00001018  60F4                      33      BRA MEM_START       ; Otherwise go back to MEM_START
+0000101A                            34      
+0000101A                            35  MEM_NEXT:
+0000101A  2640                      36      MOVE.L D0,A3        ; Restore original address
+0000101C                            37  
+0000101C                            38  MEM_READ:    
+0000101C  0C13 00AA                 39      CMP.B #$AA,(A3)     ; See if value is $AA
+00001020  6700 0006                 40      BEQ MEM_WRITE       ; If so, write to memory
+00001024  6000 000E                 41      BRA MEM_READ_FAIL_AA ; If not, error
+00001028                            42      
+00001028                            43  MEM_WRITE:
+00001028  16FC 0055                 44      MOVE.B #$55,(A3)+   ; Write $55 to memory
+0000102C  B9CB                      45      CMPA.L A3,A4        ; Make sure we haven't reached our last address
+0000102E  6700 0080                 46      BEQ MEM_RESTORE     ; If so, we need to move on to next step
+00001032  60E8                      47      BRA MEM_READ        ; Otherwise keep reading/writing
+00001034                            48      
+00001034                            49  MEM_READ_FAIL_AA
+00001034  4BF8 0814                 50      LEA MSGFAIL,A5      ; Load error message
+00001038  4DF8 0830                 51      LEA ENDFAIL,A6      ; See above
+0000103C  1E3C 00F3                 52      MOVE.B #243,D7      ; Print string command
+00001040  4E4E                      53      TRAP #14            ; TRAP handler
+00001042  2A7C 00002000             54      MOVE.L  #$2000,A5   ; Load output buffer
+00001048  2C7C 00002004             55      MOVE.L  #$2004,A6   ; See above
+0000104E  200B                      56      MOVE.L A3,D0        ; Move 6-digit hex address to D0 to be converted
+00001050  1E3C 00E7                 57      MOVE.B #231,D7      ; Convert 6-digit hex address in D0 to ASCII
+00001054  4E4E                      58      TRAP #14            ; TRAP handler
+00001056  1E3C 00F3                 59      MOVE.B #243,D7      ; Output string
+0000105A  4E4E                      60      TRAP #14            ; TRAP handler
+0000105C                            61      
+0000105C  4BF8 0848                 62      LEA WRITE,A5        ; Load value written message
+00001060  4DF8 0861                 63      LEA WRITEEND,A6     ; See above
+00001064  1E3C 00F3                 64      MOVE.B #243,D7      ; Print string command
+00001068  4E4E                      65      TRAP #14            ; TRAP handler
+0000106A  2A7C 00002000             66      MOVE.L  #$2000,A5   ; Load output buffer
+00001070  2C7C 00002002             67      MOVE.L  #$2002,A6   ; See above
+00001076  7055                      68      MOVE.L #$55,D0      ; Move 2-digit hex num to D0 to be converted
+00001078  1E3C 00E9                 69      MOVE.B #233,D7      ; Convert 2-digit hex num in D0 to ASCII
+0000107C  4E4E                      70      TRAP #14            ; TRAP handler
+0000107E  1E3C 00F3                 71      MOVE.B #243,D7      ; Output string
+00001082  4E4E                      72      TRAP #14            ; TRAP handler
+00001084                            73      
+00001084  4BF8 0831                 74      LEA READ,A5         ; Load read value message
+00001088  4DF8 0847                 75      LEA READEND,A6      ; See above
+0000108C  1E3C 00F3                 76      MOVE.B #243,D7      ; Print string command
+00001090  4E4E                      77      TRAP #14            ; TRAP handler
+00001092  2A7C 00002000             78      MOVE.L  #$2000,A5   ; Load output buffer
+00001098  2C7C 00002002             79      MOVE.L  #$2002,A6   ; See above
+0000109E  2013                      80      MOVE.L (A3),D0      ; Move 2-digit hex num to D0 to be converted
+000010A0  1E3C 00E9                 81      MOVE.B #233,D7      ; Convert 2-digit hex num in D0 to ASCII
+000010A4  4E4E                      82      TRAP #14            ; TRAP handler
+000010A6  1E3C 00F3                 83      MOVE.B #243,D7      ; Output string
+000010AA  4E4E                      84      TRAP #14            ; TRAP handler
+000010AC                            85      
+000010AC  6000 00AA                 86      BRA EXIT
+000010B0                            87      
+000010B0                            88  MEM_RESTORE:
+000010B0  2641                      89      MOVE.L D1,A3        ; Restore our original address to A3
+000010B2                            90      
+000010B2                            91  MEM_READ_2:
+000010B2  0C13 0055                 92      CMP.B #$55,(A3)     ; See if value is %55
+000010B6  6700 0006                 93      BEQ MEM_WRITE_2     ; If so, write to memory
+000010BA  6000 000E                 94      BRA MEM_READ_FAIL_55 ; If not, error
+000010BE                            95      
+000010BE                            96  MEM_WRITE_2:
+000010BE  16FC 00AA                 97      MOVE.B #$AA,(A3)+   ; Write $AA to memory
+000010C2  B9CB                      98      CMPA.L A3,A4        ; Make sure we haven't reached our last address
+000010C4  6700 0084                 99      BEQ MEM_END         ; If so, branch to end to print success message
+000010C8  60E8                     100      BRA MEM_READ_2      ; Otherwise, keeping reading/writing
+000010CA                           101      
+000010CA                           102  MEM_READ_FAIL_55
+000010CA  4BF8 0814                103      LEA MSGFAIL,A5      ; Load error message
+000010CE  4DF8 0830                104      LEA ENDFAIL,A6      ; See above
+000010D2  1E3C 00F3                105      MOVE.B #243,D7      ; Print string command
+000010D6  4E4E                     106      TRAP #14            ; TRAP handler
+000010D8  2A7C 00002000            107      MOVE.L  #$2000,A5   ; Load output buffer
+000010DE  2C7C 00002004            108      MOVE.L  #$2004,A6   ; See above
+000010E4  200B                     109      MOVE.L A3,D0        ; Move 6-digit hex address to D0 to be converted
+000010E6  1E3C 00E7                110      MOVE.B #231,D7      ; Convert 6-digit hex address in D0 to ASCII
+000010EA  4E4E                     111      TRAP #14            ; TRAP handler
+000010EC  1E3C 00F3                112      MOVE.B #243,D7      ; Output string
+000010F0  4E4E                     113      TRAP #14            ; TRAP handler
+000010F2                           114      
+000010F2  4BF8 0848                115      LEA WRITE,A5        ; Load value written message
+000010F6  4DF8 0861                116      LEA WRITEEND,A6     ; See above
+000010FA  1E3C 00F3                117      MOVE.B #243,D7      ; Print string command
+000010FE  4E4E                     118      TRAP #14            ; TRAP handler
+00001100  2A7C 00002000            119      MOVE.L  #$2000,A5   ; Load output buffer
+00001106  2C7C 00002002            120      MOVE.L  #$2002,A6   ; See above
+0000110C  203C 000000AA            121      MOVE.L #$AA,D0      ; Move 2-digit hex num to D0 to be converted
+00001112  1E3C 00E9                122      MOVE.B #233,D7      ; Convert 2-digit hex num in D0 to ASCII
+00001116  4E4E                     123      TRAP #14            ; TRAP handler
+00001118  1E3C 00F3                124      MOVE.B #243,D7      ; Output string
+0000111C  4E4E                     125      TRAP #14            ; TRAP handler
+0000111E                           126      
+0000111E  4BF8 0831                127      LEA READ,A5         ; Load read value message
+00001122  4DF8 0847                128      LEA READEND,A6      ; See above
+00001126  1E3C 00F3                129      MOVE.B #243,D7      ; Print string command
+0000112A  4E4E                     130      TRAP #14            ; TRAP handler
+0000112C  2A7C 00002000            131      MOVE.L  #$2000,A5   ; Load output buffer
+00001132  2C7C 00002002            132      MOVE.L  #$2002,A6   ; See above
+00001138  2013                     133      MOVE.L (A3),D0      ; Move 2-digit hex num to D0 to be converted
+0000113A  1E3C 00E9                134      MOVE.B #233,D7      ; Convert 2-digit hex num in D0 to ASCII
+0000113E  4E4E                     135      TRAP #14            ; TRAP handler
+00001140  1E3C 00F3                136      MOVE.B #243,D7      ; Output string
+00001144  4E4E                     137      TRAP #14            ; TRAP handler
+00001146                           138      
+00001146  6000 0010                139      BRA EXIT
+0000114A                           140  
+0000114A                           141      
+0000114A                           142  MEM_END:
+0000114A  4BF8 0800                143      LEA MSGPASS,A5      ; Load success message
+0000114E  4DF8 0813                144      LEA ENDPASS,A6      ; See above
+00001152  1E3C 00F3                145      MOVE.B #243,D7      ; Print string command
+00001156  4E4E                     146      TRAP #14            ; TRAP handler
+00001158                           147  
+00001158                           148  EXIT:
+00001158  1E3C 00E4                149      MOVE.B #228,D7      ; Go back to TUTOR
+0000115C  4E4E                     150      TRAP #14
+0000115E                           151      
+0000115E                           152  
+0000115E  FFFF FFFF                153      SIMHALT             ; halt simulator
+00001162                           154  
+00001162                           155  * Put variables and constants here
+00001162                           156  
+00001162                           157      END    START        ; last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ENDFAIL             830
+ENDPASS             813
+EXIT                1158
+MEM_END             114A
+MEM_NEXT            101A
+MEM_READ            101C
+MEM_READ_2          10B2
+MEM_READ_FAIL_55    10CA
+MEM_READ_FAIL_AA    1034
+MEM_RESTORE         10B0
+MEM_START           100E
+MEM_WRITE           1028
+MEM_WRITE_2         10BE
+MSGFAIL             814
+MSGPASS             800
+READ                831
+READEND             847
+START               1000
+WRITE               848
+WRITEEND            861
